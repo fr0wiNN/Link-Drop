@@ -1,0 +1,174 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif; 
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    justify-content: flex-start; 
+    height: 100vh; 
+    background-color: #FFFFFF; 
+    overflow: hidden;
+}
+
+/* ============================= */
+/*          Static Header        */
+/* ============================= */
+
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    background-color: #c7c7c7;
+    text-align: left; 
+    padding: 10px 20px;
+}
+
+.logo {
+    width: 60px; 
+    margin-right: 20px;
+}
+
+.website-name {
+    align-self: center;
+    font-size: 36px;
+    font-weight: 100;
+    color: #000000;
+    opacity: 80%; 
+    margin-top: 0px; 
+    margin-bottom: 0px;
+}
+
+
+/* ============================= */
+/*     Upload File Container     */
+/* ============================= */
+
+
+.upload-file-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: calc(100vh - 80px);
+    width: 100%;
+}
+
+/* Make the button seamless */
+.upload-file-button { 
+    display: flex;
+    flex-direction: column; /* Stack icon and text */
+    align-items: center;
+    justify-content: center;
+    background: none; /* Remove default button background */
+    border: none; /* Remove border */
+    cursor: pointer;
+    outline: none; /* Remove focus outline */
+}
+
+/* Upload icon adjustments */
+.upload-icon {
+    width: 60px;
+    height: 60px;
+    transition: transform 0.2s ease-in-out;
+}
+
+/* Label adjustments */
+.upload-file-label {
+    font-size: 18px;
+    color: #007BFF;
+    font-weight: bold;
+    margin-top: 8px;
+    transition: transform 0.2s ease-in-out;
+}
+
+/* Hover effects */
+.upload-file-button:hover .upload-icon {
+    transform: scale(1.1); /* Slightly enlarge icon on hover */
+}
+
+.upload-file-button:hover .upload-file-label {
+    transform: translate(0px, 5px);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.input-field {
+    width: 100%; 
+    padding: 12px; 
+    margin-bottom: 10px; 
+    border: none;
+    border-radius: 5px; 
+    background: #d6d6d6; 
+    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.1); 
+    font-size: 16px; 
+}
+
+.input-field:focus { 
+    outline: 2px solid #007BFF; 
+}
+
+/* ============================= */
+/*          Login Button         */
+/* ============================= */
+
+.login-button {
+    width: 100%; 
+    padding: 12px; 
+    background: #007BFF; 
+    color: white; 
+    font-size: 16px;
+    border: none; 
+    border-radius: 5px;
+    cursor: pointer; 
+    margin-top: 10px; 
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1); 
+}
+
+.login-button:hover {
+    background: #0056b3; 
+}
+
+/* ============================= */
+/*     Sign-up Text & Link       */
+/* ============================= */
+
+.signup-text {
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.signup-text a {
+    color: #007BFF;
+    text-decoration: none;
+}
+
+.signup-text a:hover {
+    text-decoration: underline; 
+}
+
