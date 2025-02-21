@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link Drop: User Dashboard</title>
+    <link rel="icon" type="image/png" href="../assets/img/logo.png">
+    <link rel="stylesheet" href="../assets/styles/dashboard_style.css">
+    <script src="../assets/scripts/dashboard-ui.js" type="module"></script>
+    <script src="../assets/scripts/dashboard.js" type="module"></script>
+</head>
+<body>
+
+    <!-- Logo and Name -->
+    <div class="header">
+        <img src="../assets/img/logo.png" alt="Link Drop Logo" class="logo">
+        <p class="website-name">Link Drop</p>
+    </div>
+
+    <!-- Stored Files Container -->
+    <div class="file-tiles-container">
+        <h1>Hosted Files</h1>
+
+        <div class="file-tile"> <!-- Fixed width of each tile and elements of it. Make room for file's hash and error notes -->
+            
+            <!-- File icon --> <!-- https://www.flaticon.com/packs/file-types-21 -->
+            <img src="../assets/img/file_icons/pdf.png" width="50" height="50" alt="File Icon" class="file-icon">
+
+            <!-- File info segment-->
+            <div class="file-info">
+
+                <!-- File name -->
+                <p class="file-name">hello_world.txt</p>
+
+                <hr>
+
+                <!-- File size -->
+                <p class="file-size">Size: 12 MB</p>
+
+                <!-- File hash --> 
+                <p class="file-hash">SHA-256: <span>04aa5d25...</span><button class="copy-hash-button"><img src="../assets/img/copy_hash.png" width="14" height="14"></button></p>
+
+            </div>
+        
+            <!-- File actions -->
+            <div class="file-actions">
+
+                <!-- URL copy button-->
+                <button class="copy-url-btn">Copy URL</button> <!-- http://127.0.0.1:5500/frontend/pages/download.html?user=test&file=vm.txt -->
+
+                <!-- Delete button-->
+                <button class="delete-btn">Delete</button>
+
+            </div>
+        </div> 
+    </div>
+
+    <!-- Upload File Button -->
+    <div class="upload-file-container">
+        <button class="upload-file-button">
+            <img src="../assets/img/upload_file.png" width="50" height="50" class="upload-icon">
+            <p class="upload-file-label">Upload File</p>
+        </button>
+
+        <!-- Hidden File Input -->
+        <input type="file" id="file-input" class="file-input" style="display: none;">
+    </div>
+    
+</body>
+</html>
