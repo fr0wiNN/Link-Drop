@@ -27,7 +27,17 @@ router.post("/upload/:username", upload.single("file"), async (req, res) => {
     }
 });
 
-
+router.delete("/delete/:username/:filename", async (req, res) => {
+    const { username, filename } = req.params;
+    try {
+        // Make sure fileService.deleteFile is implemented
+        const result = await fileService.deleteFile(username, filename);
+        res.json(result);
+    } catch (error) {
+        console.error("File deletion error:", error);
+        res.status(500).json({ success: false, message: "Server error while deleting file." });
+    }
+});
 
 // Download file API
 // The API might be overloaded very easly
@@ -47,7 +57,7 @@ router.get("/download/:username/:filename", (req, res) => {
     });
 });
 
-// 🔹 Get all files for a user (Ensure it's placed above `/details/:username/:filename`)
+// Get all files for a user (Ensure it's placed above `/details/:username/:filename`)
 router.get("/userfiles/:username", async (req, res) => {
     const { username } = req.params;
 
@@ -65,7 +75,7 @@ router.get("/userfiles/:username", async (req, res) => {
     }
 });
 
-// 🔹 Get details for a specific file (Ensure it's below `/userfiles/:username`)
+// Get details for a specific file (Ensure it's below `/userfiles/:username`)
 router.get("/details/:username/:filename", (req, res) => {
     const { username, filename } = req.params;
     const fileDetails = fileService.getFileDetails(username, filename);

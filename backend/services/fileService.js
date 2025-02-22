@@ -39,7 +39,37 @@ async function saveFile(username, file) {
     return result;
 }
 
+async function deleteFile(username, filename) {
+    // Get the user ID first
+    const userId = await userModel.getId(username);
+    if (!userId) {
+        return { success: false, message: `User '${username}' does not exist.` };
+    }
 
+    // Build the file path in the storage directory
+    const filePath = path.join(STORAGE_PATH, username, filename);
+    if (!fs.existsSync(filePath)) {
+        return { success: false, message: "File not found in storage." };
+    }
+
+    // Try to remove the file from the file system
+    try {
+        fs.unlinkSync(filePath);
+    } catch (error) {
+        console.error("Error deleting file from storage:", error);
+        return { success: false, message: "Error deleting file from storage." };
+    }
+
+    // Now remove the file record from the database.
+    // Make sure fileModel.deleteFile is implemented to remove a file record for a given user.
+    try {
+        const dbResult = await fileModel.deleteFile(userId, filename);
+        return dbResult;
+    } catch (error) {
+        console.error("Error deleting file record from database:", error);
+        return { success: false, message: "Error deleting file record from database." };
+    }
+}
 
 
 
@@ -69,13 +99,13 @@ async function getFileDetails(username) {
         return { success: false, message: `User '${username}' does not exist.` };
     }
 
-    // 🔹 Get all file names from DB
+    // Get all file names from DB
     const fileList = await fileModel.getFilesByUserId(userId);
     if (!fileList || fileList.length === 0) {
         return { success: true, files: [] }; // ✅ Return an empty list instead of 404
     }
 
-    // 🔹 Get file details from local storage
+    // Get file details from local storage
     const fileDetails = fileList.map(file => {
         const filePath = path.join(STORAGE_PATH, username, file.file_name);
 
@@ -107,4 +137,4 @@ function getFile(username, filename) {
 }
 
 
-module.exports = { saveFile, getFileDetails, getFile };
+module.exports = { saveFile, deleteFile, getFileDetails, getFile };
