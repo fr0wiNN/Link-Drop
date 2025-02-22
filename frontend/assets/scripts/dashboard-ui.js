@@ -41,7 +41,7 @@ export function createFileTile(file, deleteCallback, copyCallback) {
 }
 
 
-// 🔹 Get File Icon Based on Extension
+// Get File Icon Based on Extension
 function getFileIcon(extension) {
     const icons = {
         "pdf": "../assets/img/file_icons/pdf.png",
@@ -53,7 +53,7 @@ function getFileIcon(extension) {
         "mp3": "../assets/img/file_icons/audio.png"
     };
 
-    return icons[extension] || "../img/file_icons/default.png";
+    return icons[extension] || "../assets/img/file_icons/default.png";
 }
 
 // 🔹 Format File Size
