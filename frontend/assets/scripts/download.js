@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
     fileIcon.src = iconMap[fileExtension] || iconMap["default"];
 
     // Set the file download URL
-    const fileUrl = `http://pi0040:3000/api/files/download/${username}/${filename}`;
+    const fileUrl = `http://localhost:3000/api/files/download/${username}/${filename}`;
 
     // Add click event to trigger download
     downloadBtn.addEventListener("click", () => {

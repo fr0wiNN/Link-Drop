@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
         formData.append("file", file);
 
         try {
-            const response = await fetch(`http://pi0040:3000/api/files/upload/${username}`, {
+            const response = await fetch(`http://localhost:3000/api/files/upload/${username}`, {
                 method: "POST",
                 body: formData,
             });
@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         try {
-            const response = await fetch(`http://pi0040:3000/api/files/userfiles/${username}`);
+            const response = await fetch(`http://localhost:3000/api/files/userfiles/${username}`);
             const data = await response.json();
 
             if (!data.success) {
@@ -85,7 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     function copyFileURL(filename) {
-    const url = `http://pi0040/download.html?user=${localStorage.getItem("username")}&file=${filename}`;
+    const url = `http://localhost/download.html?user=${localStorage.getItem("username")}&file=${filename}`;
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(url)
@@ -122,7 +122,7 @@ function fallbackCopyTextToClipboard(text) {
         if (!username) return;
 
         try {
-            const response = await fetch(`http://pi0040:3000/api/files/delete/${username}/${filename}`, {
+            const response = await fetch(`http://localhost:3000/api/files/delete/${username}/${filename}`, {
                 method: "DELETE",
             });
 
