@@ -30,7 +30,7 @@ The project structure goes as follows:
 │           │   └── hello.txt
 │           └── Bob
 ├── database
-|   ├── init.sql # init script for correct DB configuration
+│   ├── init.sql # init script for correct DB configuration
 │   └── reset.sql # reset script for reseting the database
 ├── frontend
 │   ├── assets
