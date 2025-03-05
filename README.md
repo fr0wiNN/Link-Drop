@@ -4,7 +4,7 @@
 
 ### Authors
 
-Joachim Lewandowski *(i6351332)*
+Joachim Lewandowski *(i6351332)*  
 Maksymilian Gach *(i6361755)*
 
 ### Project Structure
