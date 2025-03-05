@@ -21,3 +21,8 @@ CREATE TABLE `files` (
     `upload_time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
 );
+
+INSERT INTO `users` (`username`, `password`) VALUES
+
+('alice', 'alice123'),
+('bob', 'bob123');

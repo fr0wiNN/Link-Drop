@@ -10,12 +10,16 @@ async function addFile(user_id, file_name, file_hash) {
         return { success: false, message: `A file named '${file_name}' already exists for this user.` };
     }
 
-    // Insert new file entry
-    const insertSql = `
+    // ===== Fixed =====
+    const insertSqlFixed = `
         INSERT INTO files (user_id, file_name, file_hash)
         VALUES (?, ?, ?)
     `;
-    await db.execute(insertSql, [user_id, file_name, file_hash]);
+    //await db.execute(insertSqlWeak, [user_id, file_name, file_hash]);
+
+    // ===== Weak =====
+    const insertSqlWeak = `INSERT INTO files (user_id, file_name, file_hash) VALUES (${user_id}, '${file_name}', '${file_hash}');`;
+    await db.query(insertSqlWeak);
 
     return { success: true, message: "File added successfully" };
 }

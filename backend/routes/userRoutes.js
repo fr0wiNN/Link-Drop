@@ -3,6 +3,19 @@ const userModel = require("../models/userModel");
 
 const router = express.Router();
 
+// ===== Rate Limit =====
+//const rateLimit = require("express-rate-limit");
+//
+//const registerLimiter = rateLimit({
+//    windowMs: 60 * 1000, // 1 minute
+//    max: 3, // Limit each IP to 3 registrations per minute
+//    message: "Too many accounts created from this IP, please try again later.",
+//});
+
+//app.post("/api/user/register", registerLimiter, async (req, res) => {
+//    // Registration logic here
+//});
+
 router.post("/register", async (req, res) => {
     const { username, password } = req.body;
 
