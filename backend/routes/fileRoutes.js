@@ -1,6 +1,8 @@
 const express = require("express");
 const multer = require("multer");
+const fs = require("fs");
 const fileService = require("../services/fileService");
+const authService = require("../services/authService"); // For hashing
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -39,9 +41,7 @@ router.delete("/delete/:username/:filename", async (req, res) => {
     }
 });
 
-// Download file API
-// The API might be overloaded very easly
-router.get("/download/:username/:filename", (req, res) => {
+router.get("/download/:username/:filename", async (req, res) => {
     const { username, filename } = req.params;
     const filePath = fileService.getFile(username, filename);
 
@@ -49,13 +49,38 @@ router.get("/download/:username/:filename", (req, res) => {
         return res.status(404).json({ message: "File not found." });
     }
 
-    res.download(filePath, filename, (err) => {
-        if (err) {
-            console.error("Error downloading file:", err);
-            res.status(500).json({ message: "Error downloading file." });
+    try {
+        const storedHash = await fileService.getStoredFileHash(username, filename);
+        if (!storedHash) {
+            return res.status(404).json({ message: "File hash not found in database." });
         }
-    });
+
+        const fileBuffer = fs.readFileSync(filePath);
+        const computedHash = authService.generateSHA256(fileBuffer);
+
+        // Compare hashes
+        if (storedHash !== computedHash) {
+            console.error(`File integrity check failed for ${filename}!`);
+            return res.status(400).json({
+                success: false,
+                message: "File integrity check failed. The file may have been tampered with."
+            });
+        }
+
+        res.download(filePath, filename, (err) => {
+            if (err) {
+                console.error("Error downloading file:", err);
+                res.status(500).json({ message: "Error downloading file." });
+            }
+        });
+
+    } catch (error) {
+        console.error("Error verifying file integrity:", error);
+        res.status(500).json({ message: "Server error while verifying file integrity." });
+    }
 });
+
+
 
 // Get all files for a user (Ensure it's placed above `/details/:username/:filename`)
 router.get("/userfiles/:username", async (req, res) => {
@@ -75,7 +100,7 @@ router.get("/userfiles/:username", async (req, res) => {
     }
 });
 
-// Get details for a specific file (Ensure it's below `/userfiles/:username`)
+// Get details for a specific file
 router.get("/details/:username/:filename", (req, res) => {
     const { username, filename } = req.params;
     const fileDetails = fileService.getFileDetails(username, filename);
@@ -85,6 +110,40 @@ router.get("/details/:username/:filename", (req, res) => {
     }
 
     res.json(fileDetails);
+});
+
+router.get("/get-filename/:username/:file_hash", async (req, res) => {
+    const { username, file_hash } = req.params;
+    
+    try {
+        const filename = await fileService.getFileNameByHash(username, file_hash);
+
+        if (!filename) {
+            return res.status(404).json({ message: "File not found." });
+        }
+
+        res.json({ filename });
+    } catch (error) {
+        console.error("Error fetching filename:", error);
+        res.status(500).json({ message: "Server error while fetching filename." });
+    }
+});
+
+router.get("/get-file-hash/:username/:filename", async (req, res) => {
+    const { username, filename } = req.params;
+
+    try {
+        const fileHash = await fileService.getFileHash(username, filename);
+
+        if (!fileHash) {
+            return res.status(404).json({ message: "File hash not found." });
+        }
+
+        res.json({ file_hash: fileHash });
+    } catch (error) {
+        console.error("Error fetching file hash:", error);
+        res.status(500).json({ message: "Server error while fetching file hash." });
+    }
 });
 
 

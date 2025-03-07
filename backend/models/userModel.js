@@ -1,4 +1,5 @@
 const db = require("../config/db");
+const authService = require("../services/authService")
 
 async function createUser(username, password) {
     // Check if username already exists
@@ -7,8 +8,10 @@ async function createUser(username, password) {
         throw new Error("Username already taken");
     }
 
+    password_hash = await authService.hashPassword(password);
+
     const sql = "INSERT INTO users (username, password) VALUES (?, ?)";
-    await db.execute(sql, [username, password]);
+    await db.execute(sql, [username, password_hash]);
     return { message: "User created successfully" };
 }
 

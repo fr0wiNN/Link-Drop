@@ -1,22 +1,30 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     // Get file info from URL
     const urlParams = new URLSearchParams(window.location.search);
     const username = urlParams.get("user");
-    const filename = urlParams.get("file");
+    const file_hash = urlParams.get("file");
 
-    if (!username || !filename) {
+
+    // fetch the filename given its hash
+    const response = await fetch(`http://localhost:3000/api/files/get-filename/${username}/${file_hash}`);
+    console.log(response);
+    const data = await response.json();
+
+    const filename = data.filename; // Retrieve filename from the response
+    console.log(data);
+
+    console.log(filename);
+
+    if (!username || !file_hash || !filename) {
         document.body.innerHTML = "<h2>Error: Invalid file request.</h2>";
         return;
     }
 
+    // Select UI elements
     const fileInfo = document.getElementById("file-info");
     const downloadBtn = document.getElementById("download-btn");
     const fileName = document.getElementById("file-name");
     const fileIcon = document.getElementById("file-icon");
-
-    // Set file details
-    fileName.innerHTML = `<i>${filename}</i>`
-    fileInfo.innerHTML = `From: <strong>${username}</strong><br>Size: 10GB<br>Hash: hash_here`;
 
     // Extract file extension
     const fileExtension = filename.split('.').pop().toLowerCase();
@@ -54,16 +62,55 @@ document.addEventListener("DOMContentLoaded", () => {
     // Set file icon (fallback to default if not found)
     fileIcon.src = iconMap[fileExtension] || iconMap["default"];
 
+    // Fetch file details (including hash) from backend
+    try {
+        const response = await fetch(`http://localhost:3000/api/files/userfiles/${username}`);
+        const data = await response.json();
+
+        if (response.ok) {
+            const fileData = data.files.find(file => file.filename === filename);
+
+            fileName.innerHTML = `<i>${fileData.filename}</i>`;
+
+            if (fileData) {
+                fileInfo.innerHTML = `
+                    From: <strong>${username}</strong><br>
+                    Size: ${fileData.size} bytes<br>
+                    Hash: <code>${fileData.hash}</code>
+                `;
+            } else {
+                fileInfo.innerHTML = `<h2>Error: File not found.</h2>`;
+            }
+        } else {
+            fileInfo.innerHTML = `<h2>Error: ${data.message}</h2>`;
+        }
+    } catch (error) {
+        console.error("Error fetching file details:", error);
+        fileInfo.innerHTML = "<h2>Error fetching file details.</h2>";
+    }
+
     // Set the file download URL
     const fileUrl = `http://localhost:3000/api/files/download/${username}/${filename}`;
 
-    // Add click event to trigger download
-    downloadBtn.addEventListener("click", () => {
-        const a = document.createElement("a");
-        a.href = fileUrl;
-        a.download = filename; // This suggests to the browser to download the file
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+    // Add click event to trigger download and handle integrity errors
+    downloadBtn.addEventListener("click", async () => {
+        try {
+            const response = await fetch(fileUrl);
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Download failed.");
+            }
+
+            const a = document.createElement("a");
+            a.href = fileUrl;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        } catch (error) {
+            alert(error.message);
+        }
     });
 });
+

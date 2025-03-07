@@ -84,20 +84,36 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    function copyFileURL(filename) {
-    const url = `http://localhost/download.html?user=${localStorage.getItem("username")}&file=${filename}`;
-
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(url)
-            .then(() => alert("File URL copied!", "success"))
-            .catch(err => {
-                console.error("Clipboard copy failed:", err);
+    async function copyFileURL(filename) {
+        const username = localStorage.getItem("username");
+    
+        try {
+            const response = await fetch(`http://localhost:3000/api/files/get-file-hash/${username}/${filename}`);
+            const data = await response.json();
+    
+            if (!response.ok) {
+                throw new Error(data.message || "Failed to retrieve file hash");
+            }
+    
+            const file_hash = data.file_hash;
+            const url = `http://localhost:5500/frontend/pages/download.html?user=${username}&file=${file_hash}`;
+    
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url)
+                    .then(() => alert("File URL copied!", "success"))
+                    .catch(err => {
+                        console.error("Clipboard copy failed:", err);
+                        fallbackCopyTextToClipboard(url);
+                    });
+            } else {
                 fallbackCopyTextToClipboard(url);
-            });
-    } else {
-        fallbackCopyTextToClipboard(url);
+            }
+        } catch (error) {
+            console.error("Error copying file URL:", error);
+            alert("Failed to copy file URL.");
+        }
     }
-}
+    
 
 // Fallback function using `execCommand`
 function fallbackCopyTextToClipboard(text) {

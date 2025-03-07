@@ -1,7 +1,9 @@
 const fs = require("fs");
 const path = require("path");
+
 const fileModel = require("../models/fileModel");
 const userModel = require("../models/userModel");
+const authService = require("./authService");
 
 
 const STORAGE_PATH = path.join(__dirname, "../storage/user_data")
@@ -30,8 +32,8 @@ async function saveFile(username, file) {
     const filePath = path.join(userFolder, file.originalname);
     fs.writeFileSync(filePath, file.buffer);
 
-    // Generate hash (TODO: Implement real hashing)
-    const file_hash = "e0d123e5f316bef78bfdf5a008837577";
+    // Generate SHA-256 hash of the file
+    const file_hash = authService.generateSHA256(file.buffer);
 
     // Try to save file metadata in the database
     const result = await fileModel.addFile(userId, file.originalname, file_hash);
@@ -93,6 +95,40 @@ async function deleteFile(username, filename) {
 // Scanning the file for any malicious content/format/size - refuse connection.
 // Report/log the traffic on this service
 
+async function getSingleFileDetails(username, filename) {
+    const userId = await userModel.getId(username);
+    if (!userId) {
+        return null;
+    }
+
+    // Fetch single file metadata from DB
+    const fileList = await fileModel.getFilesByUserId(userId);
+    const fileRecord = fileList.find(file => file.file_name === filename);
+
+    if (!fileRecord) {
+        return null;
+    }
+
+    // Generate file path
+    const filePath = path.join(STORAGE_PATH, username, filename);
+
+    if (!fs.existsSync(filePath)) {
+        return null; // File missing
+    }
+
+    // 🔥 Read file content and compute hash **exactly as getFileDetails() does**
+    const fileContent = fs.readFileSync(filePath);
+    const fileHash = authService.generateSHA256(fileContent);
+
+    return {
+        filename: filename,
+        size: fs.statSync(filePath).size, // Ensure file size is also consistent
+        createdAt: fs.statSync(filePath).birthtime, // File creation time
+        hash: fileHash // Use freshly computed hash
+    };
+}
+
+
 async function getFileDetails(username) {
     const userId = await userModel.getId(username);
     if (!userId) {
@@ -102,7 +138,7 @@ async function getFileDetails(username) {
     // Get all file names from DB
     const fileList = await fileModel.getFilesByUserId(userId);
     if (!fileList || fileList.length === 0) {
-        return { success: true, files: [] }; // ✅ Return an empty list instead of 404
+        return { success: true, files: [] }; 
     }
 
     // Get file details from local storage
@@ -113,17 +149,37 @@ async function getFileDetails(username) {
             return null; // File missing from storage
         }
 
+        // Read file content and generate hash
+        const fileContent = fs.readFileSync(filePath);
+        const fileHash = authService.generateSHA256(fileContent);
+
         const stats = fs.statSync(filePath);
         return {
             filename: file.file_name,
             size: stats.size, // File size in bytes
             createdAt: stats.birthtime, // File creation time
-            hash: "caba24f8a70cc24277bffcc27aa952723fbf369f315b9657eebf7c7e42b7a1f9"
+            hash: fileHash
         };
     }).filter(file => file !== null); // Remove missing files
 
     return { success: true, files: fileDetails };
 }
+
+async function getStoredFileHash(username, filename) {
+    const userId = await userModel.getId(username);
+    if (!userId) {
+        return null;
+    }
+
+    // Fetch the stored hash from the database
+    const storedHash = await fileModel.getFileHash(userId, filename);
+    if (!storedHash) {
+        return null; // File not found in DB
+    }
+
+    return storedHash;
+}
+
 
 
 function getFile(username, filename) {
@@ -136,5 +192,12 @@ function getFile(username, filename) {
     return filePath;
 }
 
+async function getFileNameByHash(user_id, file_hash) {
+    return fileModel.getFileNameByHash(user_id, file_hash);
+}
 
-module.exports = { saveFile, deleteFile, getFileDetails, getFile };
+async function getFileHash(username, filename){
+    return fileModel.getFileHash(userModel.getId(username), filename);
+}
+
+module.exports = { saveFile, deleteFile, getFileDetails, getFile, getSingleFileDetails, getStoredFileHash, getFileNameByHash, getFileHash };
