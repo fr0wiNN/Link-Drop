@@ -1,3 +1,21 @@
+/**
+ * dashboard.js
+ *
+ * This script handles file uploads, deletions, and listings on the user dashboard.
+ * It allows users to interact with their stored files through the web interface.
+ *
+ * Key functionalities:
+ * - Upload files to the server
+ * - Fetch and display a list of uploaded files
+ * - Copy file download URLs
+ * - Delete files from storage
+ *
+ * Security considerations:
+ * - No authentication checks (relies on localStorage, which is insecure)
+ * - File uploads should include validation and size limits
+ * - Clipboard interactions should handle permission errors properly
+ */
+
 import { createFileTile } from "./dashboard-ui.js";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -35,7 +53,6 @@ document.addEventListener("DOMContentLoaded", () => {
         
             if (result.success) {
                 alert("File uploaded successfully!");
-                // TODO: update files listed
             } else {
                 alert(`Upload failed: ${result.message}`);
             }
@@ -46,7 +63,6 @@ document.addEventListener("DOMContentLoaded", () => {
         
     });
 
-    // Fetch & Display Hosted Files
     async function loadFiles() {
         const username = localStorage.getItem("username");
         if (!username) {
@@ -65,13 +81,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
             fileTilesContainer.innerHTML = ""; // Clear previous file tiles
 
-            // 🔹 If user has no files, show a message
+            // If user has no files, show a message
             if (data.files.length === 0) {
                 fileTilesContainer.innerHTML = `<p class="no-files-message">No files uploaded yet.</p>`;
                 return;
             }
 
-            // 🔹 Display each file
+            // Display each file
             data.files.forEach(file => {
                 const fileTile = createFileTile(file, deleteFile, copyFileURL);
                 fileTilesContainer.appendChild(fileTile);

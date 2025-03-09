@@ -1,8 +1,15 @@
+/**
+ * fileService.js
+ *
+ * This module handles file storage and retrieval operations for user files.
+ * It ensures files are stored securely in a structured directory, maintains metadata in a database,
+ * and provides functionality to retrieve and delete files.
+ */
+
 const fs = require("fs");
 const path = require("path");
 const fileModel = require("../models/fileModel");
 const userModel = require("../models/userModel");
-
 
 const STORAGE_PATH = path.join(__dirname, "../storage/user_data")
 
@@ -11,7 +18,13 @@ if (!fs.existsSync(STORAGE_PATH)) {
     fs.mkdirSync(STORAGE_PATH, { recursive: true });
 }
 
-
+/**
+ * Saves a file for a given user.
+ *
+ * @param {string} username - The username of the owner of the file.
+ * @param {object} file - The file object containing `originalname` and `buffer`.
+ * @returns {Promise<object>} - A result object indicating success or failure.
+ */
 async function saveFile(username, file) {
     const userFolder = path.join(STORAGE_PATH, username);
     
@@ -39,8 +52,15 @@ async function saveFile(username, file) {
     return result;
 }
 
+/**
+ * Deletes a file belonging to a user.
+ *
+ * @param {string} username - The username of the file owner.
+ * @param {string} filename - The name of the file to be deleted.
+ * @returns {Promise<object>} - A result object indicating success or failure.
+ */
 async function deleteFile(username, filename) {
-    // Get the user ID first
+    
     const userId = await userModel.getId(username);
     if (!userId) {
         return { success: false, message: `User '${username}' does not exist.` };
@@ -52,7 +72,6 @@ async function deleteFile(username, filename) {
         return { success: false, message: "File not found in storage." };
     }
 
-    // Try to remove the file from the file system
     try {
         fs.unlinkSync(filePath);
     } catch (error) {
@@ -60,8 +79,6 @@ async function deleteFile(username, filename) {
         return { success: false, message: "Error deleting file from storage." };
     }
 
-    // Now remove the file record from the database.
-    // Make sure fileModel.deleteFile is implemented to remove a file record for a given user.
     try {
         const dbResult = await fileModel.deleteFile(userId, filename);
         return dbResult;
@@ -71,28 +88,12 @@ async function deleteFile(username, filename) {
     }
 }
 
-
-
-// TODO
-// Functions to implement:
-
-// get file details to improve UI 
-// getFileDetails(username:str):{filename, date, size, ...}
-
-// return file for person trying to download it 
-// getFile():
-
-// TODO 
-// Unsecure version:
-// Exposed API channels with no tunnel encryption nor authorisation
-// Potentially malicious file content - scripts with auto execution
-// Huge files would go thru this API, clogging up the connection and server storage  
-
-// Secure version:
-// Secure frontend-backend connection with user authorisation and encrypted communication
-// Scanning the file for any malicious content/format/size - refuse connection.
-// Report/log the traffic on this service
-
+/**
+ * Retrieves file details for a user.
+ *
+ * @param {string} username - The username of the file owner.
+ * @returns {Promise<object>} - A result object containing a list of file details, or an error message.
+ */
 async function getFileDetails(username) {
     const userId = await userModel.getId(username);
     if (!userId) {
@@ -125,7 +126,13 @@ async function getFileDetails(username) {
     return { success: true, files: fileDetails };
 }
 
-
+/**
+ * Retrieves a file path for a given user and filename.
+ *
+ * @param {string} username - The username of the file owner.
+ * @param {string} filename - The name of the file to retrieve.
+ * @returns {string|null} - The file path if the file exists, otherwise null.
+ */
 function getFile(username, filename) {
     const filePath = path.join(STORAGE_PATH, username, filename);
 
