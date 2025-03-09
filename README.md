@@ -89,6 +89,6 @@ Start node.js backend server:
 node /backend/server.js
 ```
 
-If you host the website on local machine, then replace each instance of `pi0040` in [html pages](./frontend/pages/) to `localhost`
+If you host the website on local machine, then replace each instance of `pi0040` in [html pages scripts](./frontend/assets/scripts) to `localhost`
 
 
