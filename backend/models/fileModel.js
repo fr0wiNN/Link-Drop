@@ -1,3 +1,14 @@
+/**
+ * fileModel.js
+ *
+ * This module handles database operations related to file management.
+ * It provides functions to add, retrieve, and delete file records associated with users.
+ *
+ * Security considerations:
+ * - The current implementation includes an unsafe SQL query (`insertSqlWeak`), which is vulnerable to SQL injection.
+ * - Always use parameterized queries (`execute`) instead of direct query string concatenation.
+ */
+
 const db = require("../config/db");
 
 
@@ -14,7 +25,7 @@ async function addFile(user_id, file_name, file_hash) {
         INSERT INTO files (user_id, file_name, file_hash)
         VALUES (?, ?, ?)
     `;
-    await db.execute(insertSqlWeak, [user_id, file_name, file_hash]);
+    await db.execute(insertSqlFixed, [user_id, file_name, file_hash]);
 
     return { success: true, message: "File added successfully" };
 }

@@ -1,3 +1,15 @@
+/**
+ * userRoutes.js
+ *
+ * This module defines API endpoints for user management.
+ * It provides functionality for user registration and authentication.
+ *
+ * Security considerations:
+ * - No rate limiting is currently implemented for registration.
+ * - Passwords are stored in plain text (needs hashing).
+ * - Authentication should use secure session management or JWTs.
+ */
+
 const express = require("express");
 const userModel = require("../models/userModel");
 const authService = require("../services/authService");
@@ -14,11 +26,14 @@ const registerLimiter = rateLimit({
     }
 });
 
-// ========================
-//       ROUTES
-// ========================
-
-// Apply registerLimiter to the register route
+/**
+ * Registers a new user.
+ * 
+ * @route POST /register
+ * @param {string} username - The desired username.
+ * @param {string} password - The password for the new account.
+ * @returns {object} - JSON response indicating success or failure.
+ */
 router.post("/register", registerLimiter, async (req, res) => {
     const { username, password } = req.body;
 
@@ -40,6 +55,15 @@ router.post("/register", registerLimiter, async (req, res) => {
     }
 });
 
+
+/**
+ * Logs in a user.
+ * 
+ * @route POST /login
+ * @param {string} username - The username of the account.
+ * @param {string} password - The corresponding password.
+ * @returns {object} - JSON response indicating success or failure.
+ */
 router.post("/login", async (req, res) => {
     const { username, password } = req.body;
 

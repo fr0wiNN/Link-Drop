@@ -1,3 +1,15 @@
+/**
+ * fileRoutes.js
+ *
+ * This module defines the API endpoints for file management.
+ * It allows users to upload, delete, download, and retrieve file details.
+ * 
+ * Security considerations:
+ * - The upload API currently lacks authentication, allowing unauthorized uploads.
+ * - Downloading files directly can overload the API.
+ * - File management should include access control to prevent misuse.
+ */
+
 const express = require("express");
 const multer = require("multer");
 const fs = require("fs");
@@ -7,11 +19,14 @@ const authService = require("../services/authService"); // For hashing
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
-
-// TODO:
-
-// Upload file API
-// Unsecure - threat agent may upload files to someones storage
+/**
+ * Uploads a file for a given user.
+ * 
+ * @route POST /upload/:username
+ * @param {string} username - The username of the file owner.
+ * @param {file} file - The file being uploaded (multipart/form-data).
+ * @returns {object} - JSON response indicating success or failure.
+ */
 router.post("/upload/:username", upload.single("file"), async (req, res) => {
     const { username } = req.params;
     
@@ -29,6 +44,14 @@ router.post("/upload/:username", upload.single("file"), async (req, res) => {
     }
 });
 
+/**
+ * Deletes a file for a given user.
+ * 
+ * @route DELETE /delete/:username/:filename
+ * @param {string} username - The username of the file owner.
+ * @param {string} filename - The name of the file to delete.
+ * @returns {object} - JSON response indicating success or failure.
+ */
 router.delete("/delete/:username/:filename", async (req, res) => {
     const { username, filename } = req.params;
     try {
@@ -41,6 +64,14 @@ router.delete("/delete/:username/:filename", async (req, res) => {
     }
 });
 
+/**
+ * Downloads a file for a given user.
+ * 
+ * @route GET /download/:username/:filename
+ * @param {string} username - The username of the file owner.
+ * @param {string} filename - The name of the file to download.
+ * @returns {file} - Sends the requested file if found.
+ */
 router.get("/download/:username/:filename", async (req, res) => {
     const { username, filename } = req.params;
     const filePath = fileService.getFile(username, filename);
@@ -80,9 +111,13 @@ router.get("/download/:username/:filename", async (req, res) => {
     }
 });
 
-
-
-// Get all files for a user (Ensure it's placed above `/details/:username/:filename`)
+/**
+ * Retrieves a list of all files belonging to a user.
+ * 
+ * @route GET /userfiles/:username
+ * @param {string} username - The username whose files should be listed.
+ * @returns {object} - JSON response containing file details or an error message.
+ */
 router.get("/userfiles/:username", async (req, res) => {
     const { username } = req.params;
 
@@ -100,7 +135,14 @@ router.get("/userfiles/:username", async (req, res) => {
     }
 });
 
-// Get details for a specific file
+/**
+ * Retrieves details of a specific file for a user.
+ * 
+ * @route GET /details/:username/:filename
+ * @param {string} username - The username of the file owner.
+ * @param {string} filename - The name of the file to retrieve details for.
+ * @returns {object} - JSON response containing file metadata or an error message.
+ */
 router.get("/details/:username/:filename", (req, res) => {
     const { username, filename } = req.params;
     const fileDetails = fileService.getFileDetails(username, filename);
@@ -112,6 +154,14 @@ router.get("/details/:username/:filename", (req, res) => {
     res.json(fileDetails);
 });
 
+/**
+ * Retrieves the filename associated with a given file hash for a specific user.
+ * 
+ * @route GET /get-filename/:username/:file_hash
+ * @param {string} username - The username of the file owner.
+ * @param {string} file_hash - The hash of the file.
+ * @returns {object} - JSON response containing the filename if found, or an error message.
+ */
 router.get("/get-filename/:username/:file_hash", async (req, res) => {
     const { username, file_hash } = req.params;
     
@@ -129,6 +179,14 @@ router.get("/get-filename/:username/:file_hash", async (req, res) => {
     }
 });
 
+/**
+ * Retrieves the hash of a specific file for a given user.
+ * 
+ * @route GET /get-file-hash/:username/:filename
+ * @param {string} username - The username of the file owner.
+ * @param {string} filename - The name of the file.
+ * @returns {object} - JSON response containing the file hash if found, or an error message.
+ */
 router.get("/get-file-hash/:username/:filename", async (req, res) => {
     const { username, filename } = req.params;
 
@@ -145,7 +203,6 @@ router.get("/get-file-hash/:username/:filename", async (req, res) => {
         res.status(500).json({ message: "Server error while fetching file hash." });
     }
 });
-
 
 
 module.exports = router;

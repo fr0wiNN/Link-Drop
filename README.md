@@ -15,8 +15,6 @@ The project structure goes as follows:
 .
 ├── backend
 │   ├── config # contains configuration for DB connection.
-│   ├── controllers # empty for now... will contain functions for flow-control tasks.
-│   ├── middleware # empty for now... will contain functions for secure server-client communication.
 │   ├── models # adapter for JS -> DB communication.
 │   ├── routes # define routes for API calls together with correct error indication.
 │   ├── server.js # connects everything together and starts a backend services.
@@ -32,13 +30,12 @@ The project structure goes as follows:
 ├── database
 │   ├── init.sql # init script for correct DB configuration
 │   └── reset.sql # reset script for reseting the database
-├── frontend
-│   ├── assets
-│   │   ├── img # contains images that are displayed by HTML. 
-│   │   ├── scripts # contains scripts, that define frontend logic and backend direct API calls. 
-│   │   └── styles # CSS styling sheets
-│   └── pages # contains all HTML pages. login.html is an entry point.
-└── logs # contains all logs created by application
+└── frontend
+    ├── assets
+    │   ├── img # contains images that are displayed by HTML. 
+    │   ├── scripts # contains scripts, that define frontend logic and backend direct API calls. 
+    │   └── styles # CSS styling sheets
+    └── pages # contains all HTML pages. login.html is an entry point.
 ```
 
 ## Service Configuration
@@ -57,6 +54,7 @@ npm install cors
 npm install express
 npm install multer
 npm install mysql2
+npm install bcrypt
 ```
 
 ### Database
@@ -89,6 +87,6 @@ Start node.js backend server:
 node /backend/server.js
 ```
 
-If you host the website on local machine, then replace each instance of `pi0040` in [html pages](./frontend/pages/) to `localhost`
+If you host the website on local machine, then replace each instance of `pi0040` in [html page scripts](./frontend/assets/scripts/) to `localhost`
 
 

@@ -1,3 +1,11 @@
+/**
+ * fileService.js
+ *
+ * This module handles file storage and retrieval operations for user files.
+ * It ensures files are stored securely in a structured directory, maintains metadata in a database,
+ * and provides functionality to retrieve and delete files.
+ */
+
 const fs = require("fs");
 const path = require("path");
 
@@ -13,7 +21,13 @@ if (!fs.existsSync(STORAGE_PATH)) {
     fs.mkdirSync(STORAGE_PATH, { recursive: true });
 }
 
-
+/**
+ * Saves a file for a given user.
+ *
+ * @param {string} username - The username of the owner of the file.
+ * @param {object} file - The file object containing `originalname` and `buffer`.
+ * @returns {Promise<object>} - A result object indicating success or failure.
+ */
 async function saveFile(username, file) {
     const userFolder = path.join(STORAGE_PATH, username);
     
@@ -41,6 +55,13 @@ async function saveFile(username, file) {
     return result;
 }
 
+/**
+ * Deletes a file belonging to a user.
+ *
+ * @param {string} username - The username of the file owner.
+ * @param {string} filename - The name of the file to be deleted.
+ * @returns {Promise<object>} - A result object indicating success or failure.
+ */
 async function deleteFile(username, filename) {
     // Get the user ID first
     const userId = await userModel.getId(username);
@@ -73,28 +94,14 @@ async function deleteFile(username, filename) {
     }
 }
 
-
-
-// TODO
-// Functions to implement:
-
-// get file details to improve UI 
-// getFileDetails(username:str):{filename, date, size, ...}
-
-// return file for person trying to download it 
-// getFile():
-
-// TODO 
-// Unsecure version:
-// Exposed API channels with no tunnel encryption nor authorisation
-// Potentially malicious file content - scripts with auto execution
-// Huge files would go thru this API, clogging up the connection and server storage  
-
-// Secure version:
-// Secure frontend-backend connection with user authorisation and encrypted communication
-// Scanning the file for any malicious content/format/size - refuse connection.
-// Report/log the traffic on this service
-
+/**
+ * Retrieves details of a specific file for a given user.
+ * Fetches metadata from the database and verifies file integrity.
+ *
+ * @param {string} username - The username of the file owner.
+ * @param {string} filename - The name of the file to retrieve details for.
+ * @returns {Promise<object|null>} - File metadata including size, creation date, and hash, or null if not found.
+ */
 async function getSingleFileDetails(username, filename) {
     const userId = await userModel.getId(username);
     if (!userId) {
@@ -116,7 +123,7 @@ async function getSingleFileDetails(username, filename) {
         return null; // File missing
     }
 
-    // 🔥 Read file content and compute hash **exactly as getFileDetails() does**
+    // Read file content and compute hash **exactly as getFileDetails() does**
     const fileContent = fs.readFileSync(filePath);
     const fileHash = authService.generateSHA256(fileContent);
 
@@ -165,6 +172,14 @@ async function getFileDetails(username) {
     return { success: true, files: fileDetails };
 }
 
+/**
+ * Retrieves the stored hash of a file from the database.
+ * This is used to compare with the dynamically computed hash for integrity verification.
+ *
+ * @param {string} username - The username of the file owner.
+ * @param {string} filename - The name of the file.
+ * @returns {Promise<string|null>} - The stored hash if found, otherwise null.
+ */
 async function getStoredFileHash(username, filename) {
     const userId = await userModel.getId(username);
     if (!userId) {
@@ -181,7 +196,6 @@ async function getStoredFileHash(username, filename) {
 }
 
 
-
 function getFile(username, filename) {
     const filePath = path.join(STORAGE_PATH, username, filename);
 
@@ -192,12 +206,34 @@ function getFile(username, filename) {
     return filePath;
 }
 
+/**
+ * Retrieves the filename associated with a given file hash for a specific user.
+ * 
+ * @param {number} user_id - The user ID associated with the file.
+ * @param {string} file_hash - The hash of the file.
+ * @returns {Promise<string|null>} - The filename if found, otherwise null.
+ */
 async function getFileNameByHash(user_id, file_hash) {
     return fileModel.getFileNameByHash(user_id, file_hash);
 }
 
-async function getFileHash(username, filename){
-    return fileModel.getFileHash(userModel.getId(username), filename);
+/**
+ * Retrieves the hash of a specific file for a given user.
+ * Fetches the hash from the database based on the filename.
+ *
+ * @param {string} username - The username of the file owner.
+ * @param {string} filename - The name of the file.
+ * @returns {Promise<string>} - The file hash.
+ * @throws {Error} - Throws an error if the user does not exist.
+ */
+async function getFileHash(username, filename) {
+    const user_id = await userModel.getId(username);
+
+    if (!user_id) {
+        throw new Error("User not found"); // Handle case where user doesn't exist
+    }
+
+    return fileModel.getFileHash(user_id, filename);
 }
 
 module.exports = { saveFile, deleteFile, getFileDetails, getFile, getSingleFileDetails, getStoredFileHash, getFileNameByHash, getFileHash };
