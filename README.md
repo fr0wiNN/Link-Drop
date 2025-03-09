@@ -15,8 +15,6 @@ The project structure goes as follows:
 .
 ├── backend
 │   ├── config # contains configuration for DB connection.
-│   ├── controllers # empty for now... will contain functions for flow-control tasks.
-│   ├── middleware # empty for now... will contain functions for secure server-client communication.
 │   ├── models # adapter for JS -> DB communication.
 │   ├── routes # define routes for API calls together with correct error indication.
 │   ├── server.js # connects everything together and starts a backend services.
@@ -32,13 +30,13 @@ The project structure goes as follows:
 ├── database
 │   ├── init.sql # init script for correct DB configuration
 │   └── reset.sql # reset script for reseting the database
-├── frontend
-│   ├── assets
-│   │   ├── img # contains images that are displayed by HTML. 
-│   │   ├── scripts # contains scripts, that define frontend logic and backend direct API calls. 
-│   │   └── styles # CSS styling sheets
-│   └── pages # contains all HTML pages. login.html is an entry point.
-└── logs # contains all logs created by application
+└── frontend
+    ├── assets
+    │   ├── img # contains images that are displayed by HTML. 
+    │   ├── scripts # contains scripts, that define frontend logic and backend direct API calls. 
+    │   └── styles # CSS styling sheets
+    └── pages # contains all HTML pages. login.html is an entry point.
+
 ```
 
 ## Service Configuration
@@ -75,7 +73,10 @@ To configure one follow these steps:
         user: "...",
         password: "...",
         database: "link_drop",
-        connectionLimit: 10
+        connectionLimit: 10,
+
+        stringifyObjects: true,
+        multipleStatements: true,
     });
 
     const promisePool = pool.promise();
